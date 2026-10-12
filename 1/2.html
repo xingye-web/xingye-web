@@ -1,0 +1,1365 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>星野 · Scene · 性能调度工具</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fff5f8;
+            --bg-secondary: #ffeef4;
+            --bg-card: rgba(255, 255, 255, 0.78);
+            --bg-card-hover: rgba(255, 255, 255, 0.96);
+            --text-primary: #5c3a4c;
+            --text-secondary: #a1748a;
+            --text-muted: #cda5b7;
+            --accent: #ff6fa5;
+            --accent-soft: #ffa6c9;
+            --accent-glow: rgba(255, 111, 165, 0.28);
+            --gradient-1: linear-gradient(135deg, #ff8fb8, #ffb3d4);
+            --gradient-2: linear-gradient(135deg, #ffa6c9, #c9a7ff);
+            --gradient-3: linear-gradient(135deg, #ffc2dd, #ff9ec4);
+            --gold: #ff9f43;
+            --gold-glow: rgba(255, 159, 67, 0.22);
+            --radius: 24px;
+            --radius-sm: 14px;
+            --shadow: 0 18px 44px rgba(255, 143, 184, 0.22);
+            --shadow-soft: 0 10px 28px rgba(255, 143, 184, 0.14);
+            --transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 背景光晕 */
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+        .glow-orb--1 {
+            width: 520px;
+            height: 520px;
+            top: -160px;
+            right: -120px;
+            background: rgba(255, 150, 195, 0.45);
+        }
+        .glow-orb--2 {
+            width: 460px;
+            height: 460px;
+            bottom: -120px;
+            left: -120px;
+            background: rgba(214, 170, 255, 0.38);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffeaf2;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffb3d0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff96bd;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== 导航 ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 14px 0;
+            transition: var(--transition);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 245, 248, 0.72);
+            border-bottom: 1px solid transparent;
+        }
+        .navbar.scrolled {
+            background: rgba(255, 245, 248, 0.94);
+            border-bottom: 1px solid rgba(255, 150, 195, 0.22);
+            box-shadow: 0 6px 26px rgba(255, 143, 184, 0.16);
+        }
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .nav-brand .logo-icon {
+            font-size: 22px;
+            line-height: 1;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+        .nav-brand .version-badge {
+            font-size: 10px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            color: #fff;
+            padding: 3px 11px;
+            border-radius: 100px;
+            letter-spacing: 0.3px;
+            margin-left: 4px;
+            box-shadow: 0 4px 12px rgba(255, 143, 184, 0.35);
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: var(--transition);
+            border-radius: 4px;
+        }
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .nav-cta {
+            background: var(--gradient-1);
+            color: #fff !important;
+            padding: 9px 22px;
+            border-radius: 100px;
+            font-weight: 700;
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+        .nav-cta::after {
+            display: none !important;
+        }
+        .nav-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 28px var(--accent-glow);
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+        .nav-toggle span {
+            display: block;
+            width: 26px;
+            height: 2.5px;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        .nav-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .nav-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .nav-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            padding: 140px 0 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+        .hero-text {
+            animation: fadeUp 0.7s ease-out both;
+        }
+        .hero-text .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: rgba(255, 143, 184, 0.14);
+            padding: 6px 18px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 143, 184, 0.22);
+            margin-bottom: 18px;
+        }
+        .hero-text .eyebrow .brand-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+        .hero-text h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -1.5px;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+        }
+        .hero-text h1 .highlight {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-text .chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .hero-text .chip-list span {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 5px 15px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 150, 195, 0.28);
+            box-shadow: 0 3px 10px rgba(255, 143, 184, 0.10);
+        }
+        .hero-text .chip-list span .icon {
+            margin-right: 4px;
+        }
+        .hero-text .version-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 6px 18px 6px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 150, 195, 0.28);
+            margin-bottom: 18px;
+            box-shadow: 0 3px 10px rgba(255, 143, 184, 0.10);
+        }
+        .hero-text .version-tag .badge {
+            background: var(--gradient-2);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 11px;
+            border-radius: 100px;
+        }
+        .hero-text .gift-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(255, 159, 67, 0.16), rgba(255, 200, 150, 0.10));
+            border: 1px solid rgba(255, 159, 67, 0.32);
+            padding: 9px 22px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #e07b2b;
+            box-shadow: 0 0 26px var(--gold-glow);
+        }
+        .hero-text .gift-banner .gift-icon {
+            font-size: 18px;
+        }
+        .hero-text p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 480px;
+            margin-bottom: 28px;
+            line-height: 1.8;
+        }
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        /* 新增：下载按钮组（上下排列） */
+        .download-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 100px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 150, 195, 0.30);
+        }
+        .btn-primary {
+            background: var(--gradient-1);
+            color: #fff;
+            border: none;
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 34px var(--accent-glow);
+        }
+        .btn-secondary {
+            border-color: rgba(255, 150, 195, 0.35);
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--accent);
+        }
+        .btn-secondary:hover {
+            background: #fff;
+            border-color: rgba(255, 111, 165, 0.5);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Hero 右侧终端卡片 */
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeUp 0.7s ease-out 0.15s both;
+        }
+        .terminal-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 150, 195, 0.28);
+            border-radius: var(--radius);
+            padding: 32px 30px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow);
+        }
+        .terminal-card .term-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+        .terminal-card .term-header .dots {
+            display: flex;
+            gap: 7px;
+        }
+        .terminal-card .term-header .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: rgba(255, 150, 195, 0.3);
+        }
+        .terminal-card .term-header .dot:nth-child(1) {
+            background: #ff9fb3;
+        }
+        .terminal-card .term-header .dot:nth-child(2) {
+            background: #ffd28f;
+        }
+        .terminal-card .term-header .dot:nth-child(3) {
+            background: #a5e8bd;
+        }
+        .terminal-card .term-header .term-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .terminal-card .line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255, 150, 195, 0.14);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .terminal-card .line .icon {
+            font-size: 16px;
+            width: 26px;
+            text-align: center;
+        }
+        .terminal-card .line .code {
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .terminal-card .line .code .hl {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .terminal-card .line .code .hl-pink {
+            color: #f472b6;
+            font-weight: 600;
+        }
+        .terminal-card .line .code .hl-cyan {
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .terminal-card .line .code .hl-gold {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+        .terminal-card .line:last-child {
+            border-bottom: none;
+        }
+        .terminal-card .term-footer {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 150, 195, 0.18);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .terminal-card .term-footer .status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .terminal-card .term-footer .status .pulse {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse-dot 1.8s ease-in-out infinite;
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.18);
+        }
+
+        /* ===== 功能分类导航 ===== */
+        .feature-nav {
+            padding: 40px 0 20px;
+        }
+        .feature-nav .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .feature-nav .tabs .tab {
+            padding: 10px 28px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(255, 150, 195, 0.26);
+            cursor: default;
+            transition: var(--transition);
+            box-shadow: 0 3px 12px rgba(255, 143, 184, 0.08);
+        }
+        .feature-nav .tabs .tab.active {
+            color: #fff;
+            background: var(--gradient-1);
+            border-color: transparent;
+            box-shadow: 0 8px 22px var(--accent-glow);
+        }
+        .feature-nav .tabs .tab:hover:not(.active) {
+            background: #fff;
+            border-color: rgba(255, 111, 165, 0.42);
+            color: var(--accent);
+        }
+        .feature-nav .tabs .tab .brand-highlight {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        /* ===== 功能网格 ===== */
+        .features {
+            padding: 20px 0 80px;
+        }
+        .section-header {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 50px;
+        }
+        .section-header h2 {
+            font-size: clamp(28px, 3.5vw, 40px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 17px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(255, 150, 195, 0.22);
+            border-radius: var(--radius);
+            padding: 28px 26px;
+            transition: var(--transition);
+            box-shadow: 0 6px 20px rgba(255, 143, 184, 0.08);
+        }
+        .feature-card:hover {
+            background: #fff;
+            border-color: rgba(255, 111, 165, 0.45);
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(255, 143, 184, 0.22);
+        }
+        .feature-card .icon {
+            font-size: 30px;
+            margin-bottom: 14px;
+            display: block;
+        }
+        .feature-card h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .feature-card .tag {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            background: rgba(255, 143, 184, 0.14);
+            padding: 4px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 143, 184, 0.20);
+        }
+
+        /* ===== 工作模式 ===== */
+        .modes {
+            padding: 40px 0 80px;
+        }
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .mode-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(255, 150, 195, 0.22);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 6px 20px rgba(255, 143, 184, 0.08);
+        }
+        .mode-card:hover {
+            border-color: rgba(255, 111, 165, 0.45);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(255, 143, 184, 0.22);
+            background: #fff;
+        }
+        .mode-card .mode-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .mode-card h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        .mode-card .mode-sub {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .mode-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .mode-card .badge-mode {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 18px;
+            border-radius: 100px;
+            background: rgba(255, 143, 184, 0.16);
+            color: var(--accent);
+            border: 1px solid rgba(255, 143, 184, 0.24);
+        }
+        .mode-card .badge-mode.root {
+            background: rgba(255, 166, 201, 0.20);
+            color: #ff5c94;
+            border-color: rgba(255, 143, 184, 0.32);
+        }
+        .mode-card .badge-mode.adb {
+            background: rgba(201, 167, 255, 0.18);
+            color: #9b6cf7;
+            border-color: rgba(201, 167, 255, 0.30);
+        }
+        .mode-card .badge-mode .brand-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            padding: 40px 0 100px;
+        }
+        .cta-box {
+            background: var(--gradient-1);
+            border-radius: var(--radius);
+            padding: 54px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(255, 143, 184, 0.38);
+        }
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.35), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .cta-box::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -8%;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .cta-box .gift-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            padding: 7px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(6px);
+        }
+        .cta-box .qq-group-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.20);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            padding: 7px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.92);
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(6px);
+        }
+        .cta-box .qq-group-cta:hover {
+            background: rgba(255, 255, 255, 0.32);
+            transform: translateY(-2px);
+        }
+        .cta-box .qq-group-cta .qq-num {
+            color: #fff;
+            font-weight: 700;
+        }
+        .cta-box h2 {
+            font-size: clamp(26px, 3vw, 38px);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            color: #fff;
+            text-shadow: 0 2px 12px rgba(255, 111, 165, 0.35);
+        }
+        .cta-box p {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.94);
+            max-width: 440px;
+            margin: 0 auto 28px;
+            position: relative;
+            z-index: 1;
+        }
+        .cta-box .btn {
+            background: #fff;
+            color: var(--accent);
+            border: none;
+            font-weight: 800;
+            padding: 16px 44px;
+            box-shadow: 0 10px 30px rgba(255, 111, 165, 0.28);
+            position: relative;
+            z-index: 1;
+        }
+        .cta-box .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 16px 42px rgba(255, 111, 165, 0.35);
+            color: #ff4d8f;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            padding: 30px 0 24px;
+            border-top: 1px solid rgba(255, 150, 195, 0.22);
+        }
+        .footer .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+        .footer .copyright {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .footer .copyright a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .footer .copyright a:hover {
+            color: var(--accent);
+        }
+        .footer .socials {
+            display: flex;
+            gap: 18px;
+        }
+        .footer .socials a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .footer .socials a:hover {
+            color: var(--accent);
+        }
+
+        /* ===== 动画 ===== */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.75);
+            }
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+            .hero-text p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-text .chip-list {
+                justify-content: center;
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+            .download-group {
+                align-items: center;
+            }
+            .terminal-card {
+                max-width: 100%;
+            }
+            .modes-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: rgba(255, 245, 248, 0.98);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 28px 20px;
+                gap: 18px;
+                border-bottom: 1px solid rgba(255, 150, 195, 0.28);
+                transform: translateY(-120%);
+                transition: var(--transition);
+                opacity: 0;
+                pointer-events: none;
+                border-radius: 0 0 var(--radius) var(--radius);
+                box-shadow: 0 16px 36px rgba(255, 143, 184, 0.20);
+            }
+            .nav-links.open {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+            .nav-toggle {
+                display: flex;
+            }
+            .hero {
+                padding: 110px 0 50px;
+                min-height: auto;
+            }
+            .hero-text h1 {
+                font-size: 32px;
+            }
+            .terminal-card {
+                padding: 24px 18px;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .modes-grid {
+                grid-template-columns: 1fr;
+            }
+            .cta-box {
+                padding: 36px 22px;
+            }
+            .footer .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .feature-nav .tabs .tab {
+                font-size: 12px;
+                padding: 7px 16px;
+            }
+            .glow-orb {
+                filter: blur(90px);
+                opacity: 0.5;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            .download-group {
+                width: 100%;
+            }
+            .download-group .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景光晕 -->
+    <div class="glow-orb glow-orb--1"></div>
+    <div class="glow-orb glow-orb--2"></div>
+
+    <!-- ===== 导航 ===== -->
+    <header class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="nav-brand">
+                <span class="logo-icon">星野</span>
+                <span>Scene</span>
+                <span class="version-badge">N1 2026.09 Alpha7</span>
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="切换菜单">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#features">功能</a></li>
+                <li><a href="#modes">模式</a></li>
+                <li><a href="SCENEN1.apk" class="nav-cta">📲 免费下载</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <span class="eyebrow">
+                        <span class="brand-text">星野scene</span> · 骁龙 · 天玑 · 全平台调度
+                    </span>
+                    <h1>
+                        性能 <br /><span class="highlight">由你调度</span>
+                    </h1>
+                    <div class="chip-list">
+                        <span><span class="icon">🔵</span> 高通骁龙</span>
+                        <span><span class="icon">🟢</span> 联发科天玑</span>
+                        <span><span class="icon">📱</span> 全安卓平台</span>
+                    </div>
+                    <div class="version-tag">
+                        <span>🚀</span>
+                        最新版本
+                        <span class="badge">N1 2026.09 Alpha7</span>
+                        <span style="color:var(--text-muted);font-weight:500;">· 0923</span>
+                    </div>
+                    <div class="gift-banner">
+                        <span class="gift-icon">🎁</span>
+                        现在安装 · 打开即送永久会员
+                    </div>
+                    <p>
+                        Scene 是一款专业的安卓性能调度工具，深度适配高通骁龙与联发科天玑处理器。
+                        提供 CPU/GPU 调频、温控管理、帧率监控等核心功能，让性能尽在掌控。
+                    </p>
+                    <!-- 修改：免费下载下方新增“备用下载”按钮 -->
+                    <div class="hero-actions">
+                        <div class="download-group">
+                            <a href="SCENEN1.apk" class="btn btn-primary">📲 免费下载</a>
+                            <a href="scene.apk" class="btn btn-secondary">📥 备用下载</a>
+                        </div>
+                        <a href="#features" class="btn btn-secondary">探索功能 →</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="terminal-card">
+                        <div class="term-header">
+                            <div class="dots">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                            <span class="term-label">星野 · 调度控制台</span>
+                        </div>
+                        <div class="line">
+                            <span class="icon">📊</span>
+                            <span class="code">帧率记录 <span class="hl">实时</span> <span class="hl-pink">165fps</span></span>
+                        </div>
+                        <div class="line">
+                            <span class="icon">⚡</span>
+                            <span class="code">CPU调频 <span class="hl"> 大核</span> <span class="hl-gold">4.6GHz</span> <span class="hl">·</span> <span class="hl">超大核</span> <span class="hl-gold">5.1GHz</span></span>
+                        </div>
+                        <div class="line">
+                            <span class="icon">🔋</span>
+                            <span class="code">充电统计 <span class="hl-cyan">· 实时功率</span></span>
+                        </div>
+                        <div class="line">
+                            <span class="icon">🌡️</span>
+                            <span class="code">温控编辑 <span class="hl">--threshold</span> <span class="hl-cyan">45°C</span></span>
+                        </div>
+                        <div class="term-footer">
+                            <span class="status">
+                                <span class="pulse"></span>
+                                运行中 · N1 2026.09 Alpha7
+                            </span>
+                            <span>✨ 就绪</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 功能分类导航 ===== -->
+    <div class="feature-nav" id="features">
+        <div class="container">
+            <div class="tabs">
+                <span class="tab active">📊 性能监控</span>
+                <span class="tab"><span class="brand-highlight">星野</span> 性能调校</span>
+                <span class="tab">📦 应用管理</span>
+                <span class="tab">🔧 系统工具</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 功能网格 ===== -->
+    <section class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>全方位 <span style="background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">调度能力</span></h2>
+                <p>从硬件监控到深度调校，<span style="background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;">星野</span> 为你提供一站式的性能调度体验。</p>
+            </div>
+
+            <div class="features-grid">
+                <!-- 性能监控 -->
+                <div class="feature-card">
+                    <span class="icon">📊</span>
+                    <h3>帧率记录</h3>
+                    <p>实时监控游戏与应用帧率，支持悬浮窗显示与历史记录导出。</p>
+                    <span class="tag">实时监控</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🔋</span>
+                    <h3>充电 &amp; 耗电统计</h3>
+                    <p>按小时或应用查看能耗曲线，精准掌握电池健康与耗电详情。</p>
+                    <span class="tag">电池管理</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🌡️</span>
+                    <h3>温控编辑</h3>
+                    <p>自定义 CPU 温度墙，防止过热降频，平衡性能与续航。</p>
+                    <span class="tag">温度管理</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">📈</span>
+                    <h3>CPU/GPU 监控</h3>
+                    <p>实时显示各核心频率、负载、温度及 GPU 运行状态。</p>
+                    <span class="tag">硬件监控</span>
+                </div>
+
+                <!-- 性能调校 -->
+                <div class="feature-card">
+                    <span class="icon">⚡</span>
+                    <h3>CPU/GPU 频率调节</h3>
+                    <p>精细调整处理器频率与 Governor 策略，释放硬件潜能。</p>
+                    <span class="tag">深度调校</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🎮</span>
+                    <h3>游戏模式优化</h3>
+                    <p>针对游戏场景自动优化性能，提升帧率稳定性与响应速度。</p>
+                    <span class="tag">游戏加速</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🧠</span>
+                    <h3>智能场景切换</h3>
+                    <p>根据电量、温度与前台应用自动切换性能调度策略。</p>
+                    <span class="tag">自动化</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🔧</span>
+                    <h3>SWAP 虚拟内存</h3>
+                    <p>调节 SWAP 分区大小，提升多任务处理与后台保活能力。</p>
+                    <span class="tag">内存优化</span>
+                </div>
+
+                <!-- 应用管理 -->
+                <div class="feature-card">
+                    <span class="icon">📦</span>
+                    <h3>应用管理</h3>
+                    <p>支持应用卸载、冻结、隐藏，有效管控后台与自启动行为。</p>
+                    <span class="tag">权限管理</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🔄</span>
+                    <h3>备份 &amp; 还原</h3>
+                    <p>备份 Boot / Recovery 镜像与系统文件，安全无忧。</p>
+                    <span class="tag">数据安全</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">📋</span>
+                    <h3>活动 / 服务管理</h3>
+                    <p>查看并管理系统组件与服务，深度掌控应用行为。</p>
+                    <span class="tag">系统调试</span>
+                </div>
+
+                <!-- 系统工具 -->
+                <div class="feature-card">
+                    <span class="icon">🖥️</span>
+                    <h3>屏幕测试</h3>
+                    <p>检测屏幕坏点、绿屏及触摸响应灵敏度。</p>
+                    <span class="tag">硬件检测</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">📶</span>
+                    <h3>网络诊断</h3>
+                    <p>信号强度检测、网速测量与网络连接保护。</p>
+                    <span class="tag">网络工具</span>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">📱</span>
+                    <h3>硬件信息概览</h3>
+                    <p>查看物理内存、CPU 型号、电池温度、开机时长等设备详情。</p>
+                    <span class="tag">设备信息</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 三种工作模式 ===== -->
+    <section class="modes" id="modes">
+        <div class="container">
+            <div class="section-header">
+                <h2>三种 <span style="background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">工作模式</span></h2>
+                <p>根据你的权限与需求，选择最合适的调度方式。</p>
+            </div>
+            <div class="modes-grid">
+                <div class="mode-card">
+                    <span class="mode-icon">🔍</span>
+                    <h3>基础模式</h3>
+                    <span class="mode-sub">免 Root · 即开即用</span>
+                    <p>提供硬件信息查看、性能监控、帧率记录等核心查看功能。</p>
+                    <span class="badge-mode">入门推荐</span>
+                </div>
+                <div class="mode-card">
+                    <span class="mode-icon">🔓</span>
+                    <h3>ADB 模式</h3>
+                    <span class="mode-sub">免 Root · 无线调试</span>
+                    <p>开放帧率记录、耗电统计、应用管理、系统应用卸载与权限管理等进阶功能。</p>
+                    <span class="badge-mode adb"><span class="brand-text">星野</span> 进阶</span>
+                </div>
+                <div class="mode-card">
+                    <span class="mode-icon">🚀</span>
+                    <h3>ROOT 模式</h3>
+                    <span class="mode-sub">完整权限 · 极致掌控</span>
+                    <p>解锁全部功能，包括 CPU 调频调压、系统文件修改、温控编辑等深度操作。</p>
+                    <span class="badge-mode root">🔥 极客</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-box">
+                <div class="gift-banner">
+                    <span>🎁</span> 安装即送永久会员
+                </div>
+                <div class="qq-group-cta" id="qqGroupCta" title="点击复制群号">
+                    <span>🐧</span> QQ 交流群：<span class="qq-num">1030653365</span>
+                </div>
+                <h2>立即释放设备性能</h2>
+                <p>加入数万发烧友，用 <span style="font-weight:800;">星野 · Scene</span> 精准调度你的骁龙或天玑设备。</p>
+                <a href="SCENEN1.apk" class="btn">📲 免费下载 Scene N1 2026.09 Alpha7</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="copyright">
+                &copy; 2026 <a href="#">星野 · Scene</a> · 版本 N1 2026.09 Alpha7 · 由星野赞助免费提供 本网站由3938533648@qq.com赞助提供
+            </div>
+            <div class="socials">
+                <a href="#">GitHub</a>
+                <a href="#">酷安</a>
+                <a href="#">论坛</a>
+                <a href="#">文档</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // 导航滚动
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 20);
+        });
+
+        // 移动端菜单
+        const toggle = document.getElementById('navToggle');
+        const links = document.getElementById('navLinks');
+        toggle.addEventListener('click', () => {
+            const isOpen = links.classList.toggle('open');
+            toggle.classList.toggle('active');
+            toggle.setAttribute('aria-expanded', isOpen);
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                links.classList.remove('open');
+                toggle.classList.remove('active');
+                toggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                const target = document.querySelector(targetId);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // QQ群复制功能
+        function copyQQGroup() {
+            const qqNumber = '1030653365';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(qqNumber).then(() => {
+                    showCopyToast('🌸 群号已复制：' + qqNumber);
+                }).catch(() => {
+                    fallbackCopy(qqNumber);
+                });
+            } else {
+                fallbackCopy(qqNumber);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showCopyToast('🌸 群号已复制：' + text);
+            } catch (e) {
+                showCopyToast('⚠️ 复制失败，请手动添加群号：' + text);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showCopyToast(msg) {
+            const existing = document.querySelector('.copy-toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast';
+            toast.textContent = msg;
+            Object.assign(toast.style, {
+                position: 'fixed',
+                bottom: '30px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(255,255,255,0.96)',
+                color: '#5c3a4c',
+                padding: '13px 30px',
+                borderRadius: '100px',
+                fontSize: '14px',
+                fontWeight: '700',
+                border: '1px solid rgba(255,150,195,0.4)',
+                backdropFilter: 'blur(12px)',
+                zIndex: '999',
+                boxShadow: '0 14px 40px rgba(255,143,184,0.32)',
+                fontFamily: 'Inter, sans-serif',
+                transition: 'opacity 0.3s ease',
+                opacity: '1'
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        document.getElementById('qqGroupCta').addEventListener('click', copyQQGroup);
+
+        console.log('%c🌸 星野 · Scene N1 2026.09 Alpha7', 'font-size:22px; font-weight:800; color:#ff6fa5;');
+        console.log('%c骁龙 · 天玑 · 全平台性能调度工具', 'font-size:14px; color:#a1748a;');
+        console.log('%cQQ 交流群：1030653365', 'font-size:14px; color:#ff9f43;');
+    </script>
+</body>
+</html>
