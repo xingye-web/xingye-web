@@ -11,10 +11,10 @@
 <!-- ============================================================
   Scene 官网首页 · 复刻版（单文件，样式/脚本都在这一个文件里）
   日常维护只需要改这几处：
-  ① 下载的安装包 → 命名为  s.apk  放在本目录（两个下载按钮都指向它）
-  ② “更多版本…” 的跳转地址 → 找下面 href 里带 download.omarea.com 的那行
-  ③ QQ群链接 → 找 “点击加入QQ群” 旁边的 href
-  ④ 备案号 → 找页面底部的 湘ICP备2023024708号-1
+  ① “获取”按钮的安装包 → 命名为  s.apk  放在本目录
+  ② “立即下载”“更多版本”的跳转地址 → 在各自按钮的 href 里改
+  ③ QQ群链接 → 找页面底部 “点击加入QQ群” 的 href
+  ④ 备案号 → 找页面底部的 渝ICP备20260822号-3A
   ⑤ 其它文字都在 <body> 里直接改即可
   ============================================================ -->
 <style>
@@ -29,7 +29,7 @@ html{font-size:16px}
 .home-page .versions{min-height:100vh;display:flex;flex-direction:column}
 .home-page .scene4,.home-page .scene5{min-height:70vw;position:relative;padding:15px 30px;display:flex;flex-direction:column;flex:1}
 .home-page .scene4>.content,.home-page .scene5>.content{flex:1}
-.home-page .scene4>.name,.home-page .scene5>.name{font-size:13.5vw}
+.home-page .scene4>.name,.home-page .scene5>.name{font-size:10.5vw}
 
 /* ---------------- 免费版（顶部条） ---------------- */
 .home-page .scene4{flex:1;color:#bc8de4;background-image:linear-gradient(270deg,rgba(187,141,228,.478),#fff);box-shadow:1px 1px 4px hsla(0,0%,50%,.1)}
@@ -76,7 +76,7 @@ html{font-size:16px}
 
 /* ---------------- 宽屏（≥500px） ---------------- */
 @media screen and (min-width:500px){
-  .home-page .scene5 .name{font-size:10vh}
+  .home-page .scene5 .name{font-size:min(11vw,9vh)}
   .home-page .scene5 .images .list{width:100%;display:flex;flex-direction:row;flex-wrap:wrap;padding-left:1vw;justify-content:center}
   .home-page .scene5 .images .list .img{height:22vw;width:11.2vw;margin:0;transform:scale(.85)}
   .home-page .scene5 .images .list .img[data-active=true]{height:22vw}
@@ -87,6 +87,21 @@ html{font-size:16px}
   .home-page .downloads .download,.home-page .downloads .more-versions{cursor:pointer;font-size:2.3vh;line-height:7vh}
   .home-page .downloads .download{width:270px;flex:unset}
 }
+
+/* ---------------- 底部链接组（新增） ---------------- */
+.home-page .bottom-links{margin:4px 0 14px}
+.home-page .bottom-links a{display:block;width:100%;text-align:center;text-decoration:none;color:#138ed6;background-color:hsla(0,0%,100%,.2);border:1px solid #f0f0f0;border-radius:10px;letter-spacing:2px;font-size:3.6vw;line-height:1.4;padding:13px 0;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.home-page .bottom-links a+a{margin-top:10px}
+.home-page .bottom-links a:active{transform:scale(.97)}
+@media screen and (min-width:500px){
+  .home-page .bottom-links a{font-size:2.1vh;padding:14px 0;cursor:pointer}
+}
+
+/* ---------------- 页脚（新增） ---------------- */
+.footer-copy{line-height:1.8}
+.footer-links{margin-top:6px}
+.footer-links a{margin:0 7px}
+.footer-icp{margin-top:6px;opacity:.8}
 </style>
 </head>
 <body>
@@ -97,11 +112,10 @@ html{font-size:16px}
 
     <!-- ======== 免费版（顶部条） ======== -->
     <div class="scene4 minimize">
-      <div class="name">SCENE <span class="free">免费版</span></div>
-      <div class="author">Design by 嘟嘟Ski</div>
+      <div class="name">星野 Scene <span class="free">免费版</span></div>
+      <div class="author">Design by 星野 白子 长夜月 阿燃 ink</div>
       <div class="content">
-        <div class="version">Scene4是一个免费且开源的版本, 你需要具有ROOT权限</div>
-        <div class="last-version">免费版: 4.7.3</div>
+        <div class="last-version">版本: N1 2026.10 Alpha14</div>
       </div>
       <!-- 获取按钮：默认也指向 s.apk，可自行修改 -->
       <a class="download" href="s.apk">获取</a>
@@ -109,10 +123,10 @@ html{font-size:16px}
 
     <!-- ======== N1 主区 ======== -->
     <div class="scene5 maximize">
-      <div class="name">SCENE <span class="pro">N1</span></div>
-      <div class="author">Design by 嘟嘟Ski</div>
+      <div class="name">星野 SCENE <span class="pro">N1</span></div>
+      <div class="author">Design by 星野 白子 长夜月 阿燃 ink</div>
       <div class="content">
-        <div class="version">ROOT模式全功能免费试用15天，到期后酌情购买<br> ADB/基础模式免注册、免付费<br> 所有模式均纯净无广告<br> 加入官方QQ群发现更多玩机同好<br> <a href="https://qm.qq.com/q/7n9Esx7pBK" target="_blank" rel="noopener">点击加入QQ群</a></div>
+        <div class="version">ROOT模式全功能永久免费使用<br> ADB/基础模式/ROOT模式全功能免费使用<br> 所有模式均纯净无广告<br> 限时打开就送永久会员</div>
       </div>
       <div class="images">
         <div class="list">
@@ -128,18 +142,32 @@ html{font-size:16px}
         <div class="big"><img id="bigShot" src="img/1.png" alt=""></div>
       </div>
       <div class="downloads">
-        <!-- 立即下载：指向本目录的 s.apk（把安装包改名为 s.apk 放进本目录即可） -->
-        <a class="download" href="s.apk">立即下载</a>
+        <!-- 立即下载：跳转到 QQ 文件分享链接（qfile.qq.com），可自行修改 -->
+        <a class="download" href="https://qfile.qq.com/q/S3ximqWMYA" target="_blank" rel="noopener">立即下载</a>
         <!-- 更多版本：跳转到别处，改成你要的地址即可 -->
-        <a class="more-versions" href="https://download.omarea.com/scene8/" target="_blank" rel="noopener">更多版本…</a>
+        <a class="more-versions" href="http://me.521567.xyz" target="_blank" rel="noopener">更多版本</a>
+      </div>
+
+      <!-- 底部链接：点击加入QQ群 -->
+      <div class="bottom-links">
+        <a href="https://qm.qq.com/q/7n9Esx7pBK" target="_blank" rel="noopener">点击加入QQ群</a>
       </div>
     </div>
 
   </div>
-</div>
 
-<!-- ======== 页脚 ======== -->
-<div class="footer"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">湘ICP备2023024708号-1</a></div>
+  <!-- ======== 页脚（移入整页背景内，底部不再出现白条） ======== -->
+  <div class="footer">
+  <div class="footer-copy">© 2026 星野 · Scene · 版本 N1 2026.10 Alpha14 · 由星野赞助免费提供安装包由星野赞助提供</div>
+  <div class="footer-links">
+    <a href="https://github.com/774740248/HoshinoScene-oss" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="#">酷安</a>
+    <a href="#">论坛</a>
+    <a href="#">文档</a>
+  </div>
+  <div class="footer-icp"><a href="https://icp.gov.moe/?keyword=20261522" target="_blank" rel="noopener">渝ICP备20260822号-3A</a></div>
+  </div>
+</div>
 
 <script>
 // 截图切换（移动端点小图，右侧大图跟着换；宽屏下大图自动隐藏）
