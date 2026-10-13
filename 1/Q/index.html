@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<title>Scene官网 - Scene9专业版 & Scene免费版 Scene下载</title>
+<meta name="keywords" content="Scene9,Scene8,Scene7,Scene6,Scene5,Scene官网,Scene免费版,Scene专业版">
+<meta name="description" content="Scene是一款面向安卓发烧用的玩机工具，集性能调节、性能检测、应用管理等功能于一体，界面简洁易用，丰富可视化图形统计。">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/nunito@5/index.css">
+<!-- ============================================================
+  Scene 官网首页 · 复刻版（单文件，样式/脚本都在这一个文件里）
+  日常维护只需要改这几处：
+  ① 下载的安装包 → 命名为  s.apk  放在本目录（两个下载按钮都指向它）
+  ② “更多版本…” 的跳转地址 → 找下面 href 里带 download.omarea.com 的那行
+  ③ QQ群链接 → 找 “点击加入QQ群” 旁边的 href
+  ④ 备案号 → 找页面底部的 湘ICP备2023024708号-1
+  ⑤ 其它文字都在 <body> 里直接改即可
+  ============================================================ -->
+<style>
+/* ---------------- 基础 ---------------- */
+body,html{padding:0;margin:0;font-family:"Nunito Variable",ui-rounded,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+html{font-size:16px}
+
+/* ---------------- 整页 ---------------- */
+.home-page{display:flex;flex-direction:column;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;background-image:linear-gradient(50deg,rgba(1,89,189,.224),#fff,#fff)}
+.home-page *{transition:all .3s;box-sizing:border-box}
+.home-page .versions{min-height:100vh;display:flex;flex-direction:column}
+.home-page .scene4,.home-page .scene5{min-height:70vw;position:relative;padding:15px 30px;display:flex;flex-direction:column;flex:1}
+.home-page .scene4>.content,.home-page .scene5>.content{flex:1}
+.home-page .scene4>.name,.home-page .scene5>.name{font-size:13.5vw}
+
+/* ---------------- 免费版（顶部条） ---------------- */
+.home-page .scene4{flex:1;color:#bc8de4;background-image:linear-gradient(270deg,rgba(187,141,228,.478),#fff);box-shadow:1px 1px 4px hsla(0,0%,50%,.1)}
+.home-page .scene4 .free{background-color:#ded2e9;color:#bc8de4;font-size:9px;padding:2px 3px;border-radius:5px;vertical-align:middle}
+.home-page .scene4.minimize{flex:unset;min-height:0}
+.home-page .scene4.minimize .author,.home-page .scene4.minimize .get-history,.home-page .scene4.minimize .version{overflow:hidden;height:0;margin:0}
+.home-page .scene4.minimize .content{flex:unset}
+.home-page .scene4.minimize .last-version{font-size:11px;opacity:.6;line-height:1;margin-bottom:0;margin-top:5px}
+.home-page .scene4.minimize .download{font-size:12px;letter-spacing:0;position:absolute;right:10px;top:12px;margin-top:0;width:60px;overflow:hidden;text-overflow:clip;word-break:keep-all;white-space:nowrap;height:38px;line-height:38px;color:#bc8de4;background-color:#fff;box-shadow:0 0 3px #ccc}
+.home-page .scene4.minimize>.name{font-size:12px}
+.home-page .scene4 .download{background-color:hsla(0,0%,100%,.2);color:#bc8de4;display:inline-block;width:100%;height:50px;font-size:15px;margin:1.5em auto .1em auto;border-radius:10px;letter-spacing:2px;border:none;transition:all .2s;box-shadow:1px 1px 4px hsla(0,0%,50%,.3);text-transform:uppercase;text-align:center;text-decoration:none;cursor:pointer}
+
+/* ---------------- N1 主区 ---------------- */
+.home-page .scene5{min-height:50%;color:#444}
+.home-page .scene5 a{color:#138ed6}
+.home-page .scene5 .name{color:#000}
+.home-page .scene5 .pro{color:#1474e4}
+.home-page .scene5.maximize .content{flex:unset}
+.home-page .scene5.maximize .images{height:auto;flex:1}
+.home-page .scene5 .images{overflow:hidden;height:0;vertical-align:top;flex-direction:row;display:flex;padding:20px 2px 20px 2px}
+.home-page .scene5 .images .list{display:flex;flex-direction:column;width:50px}
+.home-page .scene5 .images .list .img{box-sizing:border-box;display:inline-block;width:50px;height:52px;border-radius:10px;overflow:hidden;background-color:#fff;background-size:cover;background-position:50%;background-repeat:no-repeat;border:1px solid #f0f0f0;box-shadow:0 2px 5px rgba(0,0,0,.1);margin-right:2px}
+.home-page .scene5 .images .list .img:not(:last-child){margin-bottom:8px}
+.home-page .scene5 .images .list .img img{height:100%;width:100%;object-fit:cover}
+.home-page .scene5 .images .list .img[data-active=true]{height:85px;border:1px solid #138ed6}
+.home-page .scene5 .images .big{flex:1;padding-left:10px}
+.home-page .scene5 .images .big img{object-fit:cover;display:block;width:100%;height:140vw;outline:none;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.home-page .author{font-size:12px}
+
+/* ---------------- 下载按钮区 ---------------- */
+.home-page .downloads{display:flex;align-items:center;margin-bottom:1.2em}
+.home-page .downloads>*{border:1px solid #f0f0f0;line-height:12vw;display:inline-block;border-radius:10px;letter-spacing:2px;color:#138ed6;text-transform:uppercase;text-align:center}
+.home-page .downloads .download{flex:1;width:100%;border:none;transition:all .2s;font-size:4vw;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.home-page .downloads .download:active{transform:scale(.95)}
+.home-page .scene5{padding-bottom:0}
+.home-page .more-versions{padding:0 10px;font-size:3vw;background-color:hsla(0,0%,100%,.2);margin-left:10px;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.home-page .downloads .download,.home-page .downloads .more-versions{text-decoration:none}
+.home-page .version{font-size:12px;opacity:.9;margin-bottom:10px;margin-top:10px}
+.home-page .get-history{text-align:center;margin-top:1em;font-size:12px;opacity:.6}
+
+/* ---------------- 页脚 ---------------- */
+.footer{padding-top:10px;padding-bottom:10px;font-size:11px;text-align:center;display:block}
+.footer a{color:#555}
+
+/* ---------------- 宽屏（≥500px） ---------------- */
+@media screen and (min-width:500px){
+  .home-page .scene5 .name{font-size:10vh}
+  .home-page .scene5 .images .list{width:100%;display:flex;flex-direction:row;flex-wrap:wrap;padding-left:1vw;justify-content:center}
+  .home-page .scene5 .images .list .img{height:22vw;width:11.2vw;margin:0;transform:scale(.85)}
+  .home-page .scene5 .images .list .img[data-active=true]{height:22vw}
+  .home-page .scene5 .images .list .img:hover{transform:scale(1);z-index:5}
+  .home-page .scene5 .images .big{display:none}
+  .home-page .scene5 .images .big img{display:block;height:100%}
+  .home-page .downloads{justify-content:center}
+  .home-page .downloads .download,.home-page .downloads .more-versions{cursor:pointer;font-size:2.3vh;line-height:7vh}
+  .home-page .downloads .download{width:270px;flex:unset}
+}
+</style>
+</head>
+<body>
+<h1 style="height:0;width:0;position:fixed;display:none!important;">Scene9,Scene8,Scene7,Scene6,Scene5,Scene官网,Scene免费版,Scene专业版</h1>
+
+<div class="home-page">
+  <div class="versions">
+
+    <!-- ======== 免费版（顶部条） ======== -->
+    <div class="scene4 minimize">
+      <div class="name">SCENE <span class="free">免费版</span></div>
+      <div class="author">Design by 嘟嘟Ski</div>
+      <div class="content">
+        <div class="version">Scene4是一个免费且开源的版本, 你需要具有ROOT权限</div>
+        <div class="last-version">免费版: 4.7.3</div>
+      </div>
+      <!-- 获取按钮：默认也指向 s.apk，可自行修改 -->
+      <a class="download" href="s.apk">获取</a>
+    </div>
+
+    <!-- ======== N1 主区 ======== -->
+    <div class="scene5 maximize">
+      <div class="name">SCENE <span class="pro">N1</span></div>
+      <div class="author">Design by 嘟嘟Ski</div>
+      <div class="content">
+        <div class="version">ROOT模式全功能免费试用15天，到期后酌情购买<br> ADB/基础模式免注册、免付费<br> 所有模式均纯净无广告<br> 加入官方QQ群发现更多玩机同好<br> <a href="https://qm.qq.com/q/7n9Esx7pBK" target="_blank" rel="noopener">点击加入QQ群</a></div>
+      </div>
+      <div class="images">
+        <div class="list">
+          <div class="img" data-active="true"><img src="img/1.png" alt=""></div>
+          <div class="img"><img src="img/2.png" alt=""></div>
+          <div class="img"><img src="img/3.png" alt=""></div>
+          <div class="img"><img src="img/4.png" alt=""></div>
+          <div class="img"><img src="img/5.png" alt=""></div>
+          <div class="img"><img src="img/6.png" alt=""></div>
+          <div class="img"><img src="img/7.png" alt=""></div>
+          <div class="img"><img src="img/8.png" alt=""></div>
+        </div>
+        <div class="big"><img id="bigShot" src="img/1.png" alt=""></div>
+      </div>
+      <div class="downloads">
+        <!-- 立即下载：指向本目录的 s.apk（把安装包改名为 s.apk 放进本目录即可） -->
+        <a class="download" href="s.apk">立即下载</a>
+        <!-- 更多版本：跳转到别处，改成你要的地址即可 -->
+        <a class="more-versions" href="https://download.omarea.com/scene8/" target="_blank" rel="noopener">更多版本…</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======== 页脚 ======== -->
+<div class="footer"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">湘ICP备2023024708号-1</a></div>
+
+<script>
+// 截图切换（移动端点小图，右侧大图跟着换；宽屏下大图自动隐藏）
+(function () {
+  var list = document.querySelectorAll('.images .list .img');
+  var big = document.getElementById('bigShot');
+  list.forEach(function (el) {
+    el.addEventListener('click', function () {
+      list.forEach(function (x) { x.removeAttribute('data-active'); });
+      el.setAttribute('data-active', 'true');
+      var img = el.querySelector('img');
+      if (big && img) big.src = img.src;
+    });
+  });
+})();
+</script>
+</body>
+</html>
