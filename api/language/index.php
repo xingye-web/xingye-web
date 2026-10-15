@@ -1,0 +1,1 @@
+{"code":0,"languages":[{"name":"简体中文","lang":"zh-CN","file":"简体中文.json"},{"name":"繁體中文","lang":"zh-TW","file":"繁體中文.json"},{"name":"English","lang":"en","file":"English.json"}]}
