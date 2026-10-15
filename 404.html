@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f7">
+  <title>服务器状态 · Server</title>
+  <style>
+    :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:#1d1d1f;background:#f5f5f7;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;--blue:#007aff;--muted:#86868b;--line:#e8e8ed;--green:#34c759}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh}button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+    /* 登录 */
+    .login-page{min-height:100vh;display:grid;place-items:center;padding:30px 18px;background:radial-gradient(ellipse at 50% 0,#e9efff 0,transparent 48%),#f5f5f7}.login-card{width:min(100%,960px);min-height:560px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border:1px solid #ffffffc9;border-radius:28px;background:#fff;box-shadow:0 30px 90px #202a4517}.login-main{display:flex;flex-direction:column;justify-content:center;padding:clamp(30px,6vw,68px)}.brand{display:flex;align-items:center;gap:11px;color:#1d1d1f;font-weight:650;letter-spacing:-.02em}.brand-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:#ff6a00;color:#fff;font-size:18px;font-weight:700;box-shadow:0 5px 13px #ff6a0033}.brand small{display:block;margin-top:2px;color:#86868b;font-size:11px;font-weight:500;letter-spacing:.02em}.login-title{margin:52px 0 10px;font-size:clamp(30px,4vw,40px);font-weight:650;letter-spacing:-.055em}.login-desc{margin:0 0 28px;color:#86868b;font-size:14px;line-height:1.7}.field{display:block;margin:0 0 15px}.field span{display:block;margin:0 0 7px;color:#515154;font-size:12px;font-weight:600}.field input{width:100%;height:46px;padding:0 14px;border:1px solid #d2d2d7;border-radius:11px;outline:none;background:#fff;color:#1d1d1f;font-size:14px;transition:border-color .18s,box-shadow .18s}.field input:focus{border-color:#007aff;box-shadow:0 0 0 3px #007aff20}.field input::placeholder{color:#a1a1a6}.login-button{width:100%;height:47px;margin-top:5px;border:0;border-radius:12px;background:#007aff;color:#fff;font-size:14px;font-weight:600;box-shadow:0 6px 14px #007aff2c;transition:transform .18s,background .18s}.login-button:hover{background:#006de3;transform:translateY(-1px)}.login-note{margin:17px 0 0;color:#86868b;font-size:11px;line-height:1.65}.login-art{position:relative;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;padding:35px;background:linear-gradient(150deg,#f4f7ff,#e7efff 64%,#f5f7fc)}.art-orb{position:absolute;width:390px;height:390px;right:-90px;top:68px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0,#e6edff 19%,#c7d6ff 54%,#a9bff7 75%,#dfe7fa 100%);box-shadow:inset -20px -22px 50px #849bd344,0 38px 80px #7a91c52a}.art-orb:before,.art-orb:after{content:"";position:absolute;inset:39px -33px;border:1px solid #ffffffb5;border-radius:50%;transform:rotate(-27deg)}.art-orb:after{inset:79px -50px;transform:rotate(28deg);border-color:#fff8}.art-stars{position:absolute;inset:0;background:radial-gradient(circle at 19% 29%,#fff 0 2px,transparent 3px),radial-gradient(circle at 71% 20%,#fff 0 2px,transparent 3px),radial-gradient(circle at 21% 72%,#fff 0 1px,transparent 2px),radial-gradient(circle at 84% 70%,#fff 0 2px,transparent 3px)}.art-copy,.art-foot{position:relative;z-index:1}.demo-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #ffffffa8;border-radius:999px;background:#ffffff8a;color:#56617a;font-size:11px;font-weight:600;backdrop-filter:blur(12px)}.demo-badge i{width:7px;height:7px;border-radius:50%;background:#34c759;box-shadow:0 0 0 3px #34c75920}.art-copy{margin-top:auto;margin-bottom:22px;color:#29354d}.art-copy strong{display:block;margin-bottom:8px;font-size:23px;font-weight:600;letter-spacing:-.04em}.art-copy span{color:#69768e;font-size:13px;line-height:1.7}.art-foot{color:#7b879c;font-size:11px}
+    /* 仪表盘 */
+    .dashboard{min-height:100vh}.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 max(22px,calc((100vw - 1260px)/2));border-bottom:1px solid #e7e7eb;background:#ffffffd9;backdrop-filter:blur(18px)}.top-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:650;letter-spacing:-.02em}.top-brand .brand-mark{width:30px;height:30px;border-radius:9px;font-size:15px}.top-brand small{margin-left:3px;color:#86868b;font-size:11px;font-weight:500;letter-spacing:0}.top-actions{display:flex;align-items:center;gap:13px}.online{display:flex;align-items:center;gap:7px;color:#515154;font-size:12px}.online i,.status-dot{width:7px;height:7px;border-radius:50%;background:#34c759;box-shadow:0 0 0 3px #34c75919}.avatar{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;background:#edf2ff;color:#5873b6;font-size:12px;font-weight:700}.logout{padding:8px 12px;border:1px solid #e2e2e7;border-radius:9px;background:#fff;color:#515154;font-size:12px}.logout:hover{background:#f5f5f7}.content{width:min(100% - 40px,1200px);margin:0 auto;padding:34px 0 42px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:22px}.page-head h1{margin:0 0 6px;font-size:30px;font-weight:650;letter-spacing:-.055em}.page-head p{margin:0;color:#86868b;font-size:13px}.refresh{display:flex;align-items:center;gap:7px;padding:9px 13px;border:1px solid #dedee3;border-radius:10px;background:#fff;color:#424245;font-size:12px}.refresh:hover{background:#f9f9fb}.refresh svg{width:14px;height:14px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{border:1px solid #e9e9ed;border-radius:17px;background:#fff;box-shadow:0 3px 12px #202a4505}.stat-card{padding:19px 19px 16px}.stat-top{display:flex;align-items:center;justify-content:space-between;color:#77777c;font-size:12px}.stat-icon{width:29px;height:29px;display:grid;place-items:center;border-radius:9px;background:#f1f5ff;color:#5184e8}.stat-icon.orange{background:#fff4e9;color:#ef8d35}.stat-icon.green{background:#ebf9ef;color:#34a853}.stat-icon.purple{background:#f5efff;color:#9265d7}.stat-icon svg{width:16px;height:16px}.stat-value{margin:15px 0 5px;font-size:27px;font-weight:650;letter-spacing:-.045em;font-variant-numeric:tabular-nums}.stat-sub{display:flex;align-items:center;justify-content:space-between;color:#929297;font-size:11px}.progress{height:5px;margin-top:13px;overflow:hidden;border-radius:5px;background:#f0f0f3}.progress i{display:block;height:100%;border-radius:inherit;background:#4a8df6;transition:width .5s}.progress.orange i{background:#f5a04c}.progress.green i{background:#34c759}.progress.purple i{background:#a27be4}
+    .main-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,.85fr);gap:14px;margin-top:14px}.chart-card{padding:20px 20px 15px}.card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.card-heading h2{margin:0;font-size:14px;font-weight:650;letter-spacing:-.02em}.card-heading p{margin:5px 0 0;color:#939399;font-size:11px}.legend{display:flex;align-items:center;gap:12px;color:#77777c;font-size:10px}.legend span{display:flex;align-items:center;gap:5px}.legend i{width:7px;height:7px;border-radius:50%;background:#4285f4}.legend span+span i{background:#c6d8ff}.chart{height:185px;margin-top:12px}.chart svg{width:100%;height:100%;overflow:visible}.gridline{stroke:#ededf0;stroke-width:1}.chart-label{fill:#9b9ba0;font-size:9px;font-family:inherit}.cpu-area{fill:url(#cpuFill)}.cpu-line{fill:none;stroke:#4285f4;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.net-area{fill:url(#netFill)}.net-line{fill:none;stroke:#56b983;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}.chart-bottom{display:flex;justify-content:space-between;color:#98989d;font-size:10px}.right-stack{display:grid;grid-template-rows:1fr 1fr;gap:14px}.info-card{padding:19px}.server-info{margin-top:15px;display:grid;grid-template-columns:1fr 1fr;gap:15px 10px}.info-item span{display:block;margin-bottom:5px;color:#96969b;font-size:10px}.info-item b{font-size:12px;font-weight:600;color:#39393c}.service-list{margin-top:12px}.service-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f2}.service-row:last-child{padding-bottom:0;border-bottom:0}.service-name{display:flex;align-items:center;gap:9px;color:#49494d;font-size:12px}.service-icon{width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:#f4f5f7;color:#727279;font-size:10px;font-weight:700}.service-state{display:flex;align-items:center;gap:6px;color:#34a853;font-size:10px}.service-state i{width:6px;height:6px;border-radius:50%;background:#34c759}.bottom-row{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}.disk-card,.notice-card{padding:19px}.disk-layout{display:flex;align-items:center;gap:21px;margin-top:17px}.donut{width:82px;height:82px;flex:none;display:grid;place-items:center;border-radius:50%;background:conic-gradient(#4a8df6 0 25%,#edf0f5 25% 100%);position:relative}.donut:before{content:"";position:absolute;inset:9px;border-radius:50%;background:#fff}.donut b{position:relative;font-size:15px;font-weight:650}.disk-detail{flex:1;min-width:0}.disk-detail strong{display:block;font-size:14px;font-weight:600}.disk-detail p{margin:5px 0 10px;color:#909096;font-size:11px}.disk-legend{display:flex;gap:13px;color:#7d7d83;font-size:10px}.disk-legend i{display:inline-block;width:6px;height:6px;margin-right:5px;border-radius:50%;background:#4a8df6}.disk-legend span+span i{background:#e2e5eb}.notice-card{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(120deg,#fff,#f9faff)}.notice-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:650}.notice-icon{width:26px;height:26px;display:grid;place-items:center;border-radius:8px;background:#edf4ff;color:#4385ee}.notice-icon svg{width:14px;height:14px}.notice-card p{margin:9px 0 0 34px;color:#85858b;font-size:11px;line-height:1.7}.mock-note{margin:18px 0 0;text-align:center;color:#9a9aa0;font-size:10px}
+    @media(max-width:850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.main-grid{grid-template-columns:1fr}.right-stack{grid-template-columns:1fr 1fr;grid-template-rows:none}.chart{height:205px}}
+    @media(max-width:600px){.login-page{padding:14px}.login-card{min-height:0;display:block;border-radius:22px}.login-main{padding:31px 25px 28px}.login-title{margin-top:36px;font-size:32px}.login-art{min-height:180px;padding:20px 24px}.art-orb{width:220px;height:220px;right:-28px;top:-37px}.art-copy{margin:60px 0 0}.art-copy strong{font-size:18px}.art-copy span{font-size:11px}.art-foot{display:none}.topbar{height:58px;padding:0 15px}.top-brand{font-size:13px;gap:8px}.top-brand small{display:none}.top-actions{gap:9px}.online{font-size:10px}.avatar{width:28px;height:28px}.logout{padding:7px 9px;font-size:11px}.content{width:calc(100% - 28px);padding:25px 0 30px}.page-head{align-items:center;margin-bottom:16px}.page-head h1{font-size:25px}.page-head p{font-size:11px}.refresh{padding:8px 10px;font-size:11px}.stats{gap:9px}.stat-card{padding:14px 13px 13px;border-radius:14px}.stat-top{font-size:11px}.stat-icon{width:26px;height:26px}.stat-value{margin:12px 0 5px;font-size:24px}.stat-sub{font-size:10px}.progress{margin-top:11px}.main-grid{gap:9px;margin-top:9px}.chart-card{padding:16px 14px 13px}.card-heading h2{font-size:13px}.chart{height:165px;margin-top:15px}.legend{gap:8px;font-size:9px}.right-stack{grid-template-columns:1fr;gap:9px}.info-card{padding:16px}.server-info{margin-top:13px;gap:12px 8px}.bottom-row{grid-template-columns:1fr;gap:9px;margin-top:9px}.disk-card,.notice-card{padding:16px}.mock-note{margin-top:14px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main id="loginPage" class="login-page">
+    <section class="login-card" aria-label="服务器管理面板登录">
+      <div class="login-main">
+        <div class="brand"><span class="brand-mark">✳</span><span>ServerPanel<small>服务器管理面板</small></span></div>
+        <h1 class="login-title">欢迎回来。</h1>
+        <p class="login-desc">登录以查看你的服务器状态与运行概览。</p>
+        <form id="loginForm">
+          <label class="field"><span>用户名</span><input name="username" autocomplete="username" placeholder="用户名" aria-label="用户名"></label>
+          <label class="field"><span>密码</span><input name="password" type="password" autocomplete="current-password" placeholder="密码" aria-label="密码"></label>
+          <button class="login-button" type="submit">进入控制台</button>
+        </form>
+        <p class="login-note">请输入你的服务器管理账号以登录面板。如遇登录问题，请联系系统管理员。</p>
+      </div>
+      <aside class="login-art" aria-label="服务器状态摘要">
+        <div class="art-stars"></div><div class="art-orb"></div>
+        <span class="demo-badge"><i></i> 运行正常 · 服务在线</span>
+        <div class="art-copy"><strong>一切运行良好。</strong><span>简洁直观地掌握服务器状态，<br>让每个重要指标一目了然。</span></div>
+        <div class="art-foot">SERVER MANAGER　·　STATUS ONLINE</div>
+      </aside>
+    </section>
+  </main>
+
+  <main id="dashboard" class="dashboard hidden">
+    <header class="topbar">
+      <div class="top-brand"><span class="brand-mark">✳</span>ServerPanel <small>服务器管理面板</small></div>
+      <div class="top-actions"><span class="online"><i></i>服务器运行中</span><span class="avatar" aria-label="当前用户">U</span><button id="logoutButton" class="logout" type="button">退出</button></div>
+    </header>
+    <div class="content">
+      <div class="page-head"><div><h1>服务器概览</h1><p>欢迎回来，这里是你的服务器实时状态。</p></div><button id="refreshButton" class="refresh" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3"/></svg>刷新数据</button></div>
+      <section class="stats" aria-label="服务器资源使用情况">
+        <article class="card stat-card"><div class="stat-top"><span>CPU 使用率</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/></svg></span></div><div class="stat-value"><span id="cpuValue">18</span><small style="font-size:14px;color:#777">%</small></div><div class="stat-sub"><span>8 核心</span><span>负载平稳</span></div><div class="progress"><i id="cpuProgress" style="width:18%"></i></div></article>
+        <article class="card stat-card"><div class="stat-top"><span>内存使用</span><span class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2v4H7zm5 0h2v4h-2zm5 0h1v4h-1z"/></svg></span></div><div class="stat-value">6.4<small style="font-size:14px;color:#777;font-weight:500"> / 16 GB</small></div><div class="stat-sub"><span>已使用 40%</span><span>可用 9.6 GB</span></div><div class="progress purple"><i style="width:40%"></i></div></article>
+        <article class="card stat-card"><div class="stat-top"><span>磁盘空间</span><span class="stat-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M4 14h16m-4 3h.01"/></svg></span></div><div class="stat-value">128<small style="font-size:14px;color:#777;font-weight:500"> / 512 GB</small></div><div class="stat-sub"><span>已使用 25%</span><span>剩余 384 GB</span></div><div class="progress orange"><i style="width:25%"></i></div></article>
+        <article class="card stat-card"><div class="stat-top"><span>系统运行时间</span><span class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div><div class="stat-value" style="font-size:24px">12<span style="font-size:14px;color:#777;font-weight:500">天</span> 8<span style="font-size:14px;color:#777;font-weight:500">小时</span></div><div class="stat-sub"><span>上次启动</span><span>6 月 10 日 09:42</span></div><div class="progress green"><i style="width:78%"></i></div></article>
+      </section>
+      <section class="main-grid">
+        <article class="card chart-card"><div class="card-heading"><div><h2>CPU 使用趋势</h2><p>最近 60 分钟</p></div><div class="legend"><span><i></i>使用率</span><span><i></i>平均值</span></div></div><div class="chart"><svg viewBox="0 0 600 190" preserveAspectRatio="none" role="img" aria-label="CPU 使用率趋势图"><defs><linearGradient id="cpuFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#4285f4" stop-opacity=".2"/><stop offset="1" stop-color="#4285f4" stop-opacity="0"/></linearGradient></defs><path class="gridline" d="M36 20H590M36 58H590M36 96H590M36 134H590M36 172H590"/><text class="chart-label" x="3" y="23">100%</text><text class="chart-label" x="13" y="61">75%</text><text class="chart-label" x="13" y="99">50%</text><text class="chart-label" x="13" y="137">25%</text><text class="chart-label" x="20" y="175">0%</text><path d="M36 143H590" fill="none" stroke="#c6d8ff" stroke-dasharray="4 5"/><path id="cpuArea" class="cpu-area" d=""/><path id="cpuLine" class="cpu-line" d=""/></svg></div><div class="chart-bottom"><span>60 分钟前</span><span>30 分钟前</span><span>现在</span></div></article>
+        <div class="right-stack">
+          <article class="card info-card"><div class="card-heading"><div><h2>系统信息</h2><p>设备与网络概况</p></div></div><div class="server-info"><div class="info-item"><span>主机名称</span><b>cloud-server-01</b></div><div class="info-item"><span>操作系统</span><b>Ubuntu 22.04 LTS</b></div><div class="info-item"><span>公网地址</span><b>203.0.113.42</b></div><div class="info-item"><span>运行架构</span><b>linux / x86_64</b></div><div class="info-item"><span>内核版本</span><b>5.15.0-52-generic</b></div><div class="info-item"><span>防火墙</span><b>UFW 已启用</b></div></div></article>
+          <article class="card info-card"><div class="card-heading"><div><h2>服务状态</h2><p>关键服务运行情况</p></div></div><div class="service-list"><div class="service-row"><span class="service-name"><i class="service-icon">N</i>Nginx</span><span class="service-state"><i></i>运行中</span></div><div class="service-row"><span class="service-name"><i class="service-icon">D</i>Docker</span><span class="service-state"><i></i>运行中</span></div><div class="service-row"><span class="service-name"><i class="service-icon">M</i>MySQL</span><span class="service-state"><i></i>运行中</span></div></div></article>
+        </div>
+      </section>
+      <section class="bottom-row">
+        <article class="card chart-card"><div class="card-heading"><div><h2>网络流量</h2><p>入站与出站流量 · 最近 60 分钟</p></div><div class="legend"><span><i style="background:#56b983"></i>入站</span><span><i style="background:#ccebd9"></i>出站</span></div></div><div class="chart" style="height:135px"><svg viewBox="0 0 600 150" preserveAspectRatio="none" role="img" aria-label="网络流量趋势图"><defs><linearGradient id="netFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#56b983" stop-opacity=".2"/><stop offset="1" stop-color="#56b983" stop-opacity="0"/></linearGradient></defs><path class="gridline" d="M36 17H590M36 52H590M36 87H590M36 122H590"/><text class="chart-label" x="5" y="20">3 MB/s</text><text class="chart-label" x="12" y="55">2 MB/s</text><text class="chart-label" x="12" y="90">1 MB/s</text><text class="chart-label" x="20" y="125">0</text><path id="netArea" class="net-area" d=""/><path id="netLine" class="net-line" d=""/></svg></div><div class="chart-bottom"><span>60 分钟前</span><span>30 分钟前</span><span>现在</span></div></article>
+        <article class="card disk-card"><div class="card-heading"><div><h2>磁盘用量</h2><p>系统主磁盘 · /dev/sda1</p></div></div><div class="disk-layout"><div class="donut"><b>25%</b></div><div class="disk-detail"><strong>128 GB 已使用</strong><p>共 512 GB · 剩余 384 GB</p><div class="disk-legend"><span><i></i>已使用</span><span><i></i>可用空间</span></div></div></div></article>
+      </section>
+      <p class="mock-note">ServerPanel　·　所有资源指标按 5 秒间隔自动刷新</p>
+    </div>
+  </main>
+  <script>
+    const loginPage = document.getElementById('loginPage');
+    const dashboard = document.getElementById('dashboard');
+    document.getElementById('loginForm').addEventListener('submit', event => {
+      event.preventDefault();
+      // 仅切换本地视图，不读取、不保存、不发送表单内容
+      loginPage.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      drawCharts();
+    });
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      dashboard.classList.add('hidden');
+      loginPage.classList.remove('hidden');
+      document.getElementById('loginForm').reset();
+    });
+    function makeLine(values, width, height, top, bottom){
+      const left = 36, right = width - 10;
+      return values.map((value, index) => {
+        const x = left + (right - left) * index / (values.length - 1);
+        const y = bottom - value * (bottom - top);
+        return `${index ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`;
+      }).join(' ');
+    }
+    function chartArea(line, width, bottom){return `${line} L${width - 10} ${bottom} L36 ${bottom} Z`;}
+    let cpuData = [0.27,0.31,0.24,0.37,0.34,0.42,0.35,0.32,0.48,0.40,0.46,0.37,0.31,0.35,0.29,0.39,0.34,0.44,0.36,0.32,0.4,0.33,0.38,0.34,0.42,0.36,0.3,0.38,0.33,0.35,0.4,0.32,0.37,0.34,0.42,0.36];
+    let netData = [0.28,0.34,0.25,0.31,0.42,0.35,0.29,0.5,0.38,0.32,0.45,0.39,0.28,0.36,0.49,0.34,0.3,0.42,0.35,0.51,0.4,0.33,0.46,0.37,0.31,0.44,0.36,0.29,0.41,0.34,0.48,0.37,0.32,0.43,0.36,0.39];
+    function drawCharts(){
+      const cpuLine=makeLine(cpuData,600,190,20,172);
+      document.getElementById('cpuLine').setAttribute('d',cpuLine);
+      document.getElementById('cpuArea').setAttribute('d',chartArea(cpuLine,600,172));
+      const netLine=makeLine(netData,600,150,17,122);
+      document.getElementById('netLine').setAttribute('d',netLine);
+      document.getElementById('netArea').setAttribute('d',chartArea(netLine,600,122));
+    }
+    function refreshData(){
+      const cpu=Math.max(8,Math.min(35,Math.round(18+(Math.random()*10-5))));
+      document.getElementById('cpuValue').textContent=cpu;
+      document.getElementById('cpuProgress').style.width=cpu+'%';
+      cpuData.push(Math.max(.2,Math.min(.58,.35+(Math.random()-.5)*.24)));
+      netData.push(Math.max(.18,Math.min(.62,.38+(Math.random()-.5)*.3)));
+      cpuData.shift();netData.shift();drawCharts();
+    }
+    document.getElementById('refreshButton').addEventListener('click',refreshData);
+    setInterval(()=>{if(!dashboard.classList.contains('hidden'))refreshData()},5000);
+  </script>
+</body>
+</html>
