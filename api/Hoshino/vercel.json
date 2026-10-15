@@ -1,5 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://ark.yunzhuru.cn/api/$1" }
-  ]
-}

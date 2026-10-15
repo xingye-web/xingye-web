@@ -3,15 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <!-- ================================================================
-         API 地址配置（部署时按需修改，二选一）
-         · 留空 ""        → 使用同域名 /api/
-           适用于自带反向代理的托管：VPS(server.js/nginx)、
-           Netlify(_redirects)、Vercel(vercel.json)、Cloudflare Pages
-         · 填绝对地址      → 例如 "https://你的worker.workers.dev/api/"
-           适用于 GitHub Pages 等纯静态托管 + Cloudflare Worker 代理
+         API 地址自动配置（无需手动改）
+         · 在 Cloudflare Pages（*.pages.dev）上访问 → 用同域 /api/（同源最快）
+         · 在其它域名（如你的二级域名）上访问 → 自动指向 Pages 上的代理
+         若日后 Pages 地址有变，只需修改下面 PAGES_API 一处。
          ================================================================ -->
     <script>
-      window.ARK_API_BASE = "";
+      (function () {
+        var PAGES_API = "https://i-du7.pages.dev/api/";
+        var isPages = /(^|\.)pages\.dev$/i.test(location.hostname);
+        window.ARK_API_BASE = isPages ? "" : PAGES_API;
+      })();
     </script>
     <meta
       name="viewport"
