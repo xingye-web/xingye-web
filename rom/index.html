@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>星野ROM · 官方系统包查询与下载工具</title>
+<meta name="description" content="星野ROM：手动查询、下载 OPPO / 一加 / 真我 / 小米 / 红米 官方系统包。任意机型、任意历史版本，高速断点续传，支持 OTA 云提取镜像。" />
+<style>
+  :root{
+    --ink:#171a21;
+    --ink-2:#4c5262;
+    --muted:#6c7283;
+    --blue:#1e5bc7;
+    --blue-2:#3a78e4;
+    --line:rgba(30,60,120,.10);
+    --radius:26px;
+    --max:1180px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family:"Noto Sans CJK SC","PingFang SC","HarmonyOS Sans SC",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    background:#eef1f7;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:url(assets/background.jpg) center/cover no-repeat;
+    filter:blur(2px) saturate(1.05);
+    transform:scale(1.04);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;
+    background:
+      radial-gradient(1200px 700px at 15% -10%, rgba(255,255,255,.72), rgba(255,255,255,0) 60%),
+      radial-gradient(900px 600px at 95% 10%, rgba(160,196,255,.34), rgba(255,255,255,0) 62%),
+      linear-gradient(180deg, rgba(246,248,252,.80) 0%, rgba(240,243,249,.90) 55%, rgba(233,237,245,.96) 100%);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{width:min(var(--max),calc(100% - 48px));margin:0 auto}
+
+  /* ---------- glass ---------- */
+  .glass{
+    position:relative;border-radius:var(--radius);
+    border:1.1px solid transparent;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.66) 0%, rgba(245,248,253,.46) 55%, rgba(228,235,247,.40) 100%) padding-box,
+      conic-gradient(from 0deg,
+        rgba(255,255,255,.98) 0deg, rgba(255,255,255,.52) 40deg,
+        rgba(255,255,255,.38) 95deg, rgba(255,255,255,.48) 145deg,
+        rgba(255,255,255,.62) 180deg, rgba(255,255,255,.38) 235deg,
+        rgba(255,255,255,.50) 320deg, rgba(255,255,255,.98) 360deg) border-box;
+    box-shadow:
+      0 18px 40px rgba(48,68,105,.13),
+      0 3px 10px rgba(48,68,105,.07),
+      inset 0 1px 0 rgba(255,255,255,.85);
+    backdrop-filter:blur(18px) saturate(150%);
+    -webkit-backdrop-filter:blur(18px) saturate(150%);
+  }
+  .glass::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 8% -10%, rgba(255,255,255,.26), rgba(255,255,255,0) 58%),
+      linear-gradient(180deg, rgba(255,255,255,0) 62%, rgba(52,74,116,.05) 100%);
+  }
+  .glass>*{position:relative;z-index:1}
+
+  /* ---------- nav ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(18px) saturate(160%);
+    -webkit-backdrop-filter:blur(18px) saturate(160%);
+    background:rgba(248,250,254,.62);
+    border-bottom:1px solid rgba(255,255,255,.55);
+  }
+  .nav{display:flex;align-items:center;gap:14px;height:68px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.2px}
+  .brand img{width:34px;height:34px;border-radius:10px;box-shadow:0 4px 12px rgba(30,60,110,.18)}
+  .brand b{font-size:17px}
+  .nav .links{display:flex;gap:26px;margin-left:34px;font-size:14px;color:var(--ink-2)}
+  .nav .links a{opacity:.82;transition:.2s}
+  .nav .links a:hover{opacity:1;color:var(--blue)}
+  .nav .spacer{flex:1}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    height:44px;padding:0 20px;border-radius:14px;font-size:14px;font-weight:600;
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn-primary{
+    color:#fff;
+    background:linear-gradient(180deg,var(--blue-2),var(--blue) 55%,#1a4fb2);
+    box-shadow:0 10px 22px rgba(30,91,199,.28), inset 0 1px 0 rgba(255,255,255,.34);
+  }
+  .btn-primary:hover{box-shadow:0 14px 28px rgba(30,91,199,.34), inset 0 1px 0 rgba(255,255,255,.34)}
+  .btn-ghost{
+    color:var(--blue);
+    background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.38));
+    border:1px solid rgba(30,91,199,.24);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+  }
+
+  /* ---------- hero ---------- */
+  .hero{display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center;padding:76px 0 60px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px;font-weight:600;color:var(--blue);
+    background:rgba(219,230,253,.72);
+    border:1px solid rgba(255,255,255,.8);
+    padding:7px 13px;border-radius:999px;letter-spacing:.2px;
+  }
+  .hero h1{
+    font-size:clamp(38px,5vw,62px);line-height:1.06;letter-spacing:-1.6px;
+    margin:22px 0 0;font-weight:800;
+  }
+  .hero h1 span{
+    background:linear-gradient(95deg,#1e5bc7 0%,#4a86ea 46%,#8a6fe8 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero .lead{
+    margin:22px 0 0;font-size:17px;line-height:1.85;color:var(--ink-2);max-width:560px;
+  }
+  .hero .lead b{color:var(--ink);font-weight:600}
+  .hero .cta{display:flex;gap:13px;margin-top:34px;flex-wrap:wrap}
+  .hero .note{margin-top:16px;font-size:12.5px;color:var(--muted)}
+  .phone-wrap{position:relative;display:flex;justify-content:center}
+  .halo{
+    position:absolute;width:118%;aspect-ratio:1;border-radius:50%;
+    background:radial-gradient(circle, rgba(120,164,255,.34), rgba(160,140,255,.16) 45%, rgba(255,255,255,0) 70%);
+    filter:blur(18px);z-index:0;
+  }
+  .phone{
+    position:relative;z-index:1;width:min(340px,78vw);border-radius:42px;padding:6px;
+    background:linear-gradient(160deg,#3a3d46,#14161b 45%,#2b2e36);
+    box-shadow:0 40px 80px rgba(24,30,48,.30),0 6px 16px rgba(24,30,48,.18);
+  }
+  .phone img{display:block;width:100%;border-radius:37px}
+  .float-tag{
+    position:absolute;z-index:2;font-size:12px;font-weight:600;color:var(--ink);
+    padding:9px 13px;border-radius:13px;
+    background:rgba(255,255,255,.82);
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 10px 24px rgba(40,60,100,.16);
+    backdrop-filter:blur(10px);
+  }
+  .tag-a{top:9%;left:-8%}
+  .tag-b{bottom:14%;right:-6%}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0}
+  .sec-head{max-width:640px;margin-bottom:34px}
+  .sec-head .kicker{font-size:12.5px;font-weight:700;letter-spacing:1.4px;color:var(--blue);text-transform:uppercase}
+  .sec-head h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.9px;margin:12px 0 0;line-height:1.2}
+  .sec-head p{margin:12px 0 0;color:var(--ink-2);font-size:15.5px;line-height:1.8}
+
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{padding:26px 24px 24px;transition:transform .22s ease, box-shadow .22s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 24px 52px rgba(48,68,105,.17),0 4px 12px rgba(48,68,105,.08),inset 0 1px 0 rgba(255,255,255,.85)}
+  .ico{
+    width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+    background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(226,236,253,.78));
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 6px 14px rgba(40,70,130,.10), inset 0 1px 0 #fff;
+    color:var(--blue);
+  }
+  .card h3{font-size:17px;margin:16px 0 0;letter-spacing:-.2px}
+  .card p{font-size:14px;line-height:1.8;color:var(--ink-2);margin:9px 0 0}
+  .card .mini{display:inline-block;margin-top:14px;font-size:12px;font-weight:600;color:var(--blue);
+    background:rgba(216,227,253,.8);padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.8)}
+
+  /* ---------- brands ---------- */
+  .brands{padding:30px 34px}
+  .brands .row{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .brands .label{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.4px}
+  .brand-list{display:flex;gap:12px;flex-wrap:wrap}
+  .brand-pill{
+    font-size:14.5px;font-weight:600;padding:11px 20px;border-radius:14px;color:var(--ink);
+    background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(240,245,253,.62));
+    border:1px solid rgba(255,255,255,.92);
+    box-shadow:0 6px 16px rgba(40,70,130,.07), inset 0 1px 0 #fff;
+  }
+
+  /* ---------- steps ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:step}
+  .step{padding:26px 24px}
+  .step .n{
+    font-size:13px;font-weight:800;color:var(--blue);
+    width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+    background:rgba(216,227,253,.86);border:1px solid rgba(255,255,255,.9);
+  }
+  .step h3{margin:16px 0 0;font-size:16.5px}
+  .step p{margin:8px 0 0;font-size:14px;line-height:1.78;color:var(--ink-2)}
+
+  /* ---------- download ---------- */
+  .dl{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:stretch}
+  .dl-main{padding:38px 36px}
+  .dl-main h2{font-size:clamp(26px,3.2vw,36px);letter-spacing:-.8px;margin:0}
+  .dl-main p{margin:13px 0 0;color:var(--ink-2);font-size:15px;line-height:1.8;max-width:520px}
+  .dl-main .cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+  .dl-side{padding:30px 28px;display:flex;flex-direction:column;justify-content:center}
+  .meta{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:11px 0;border-top:1px solid var(--line)}
+  .meta:first-child{border-top:none}
+  .meta span{color:var(--muted)}
+  .meta b{font-weight:600;color:var(--ink)}
+
+  /* ---------- footer ---------- */
+  footer{padding:54px 0 40px;border-top:1px solid rgba(255,255,255,.6)}
+  .foot{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;align-items:flex-start}
+  .foot .col h4{margin:0 0 10px;font-size:13px;letter-spacing:.4px;color:var(--muted);font-weight:700}
+  .foot .col a,.foot .col p{display:block;margin:0 0 8px;font-size:13.5px;color:var(--ink-2);line-height:1.7}
+  .foot .col a:hover{color:var(--blue)}
+  .disclaimer{
+    margin-top:34px;padding-top:20px;border-top:1px solid var(--line);
+    font-size:12px;line-height:1.85;color:var(--muted);
+  }
+  .copyright{margin-top:14px;font-size:12px;color:var(--muted)}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;gap:44px;padding:52px 0 30px}
+    .phone-wrap{order:-1}
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .steps{grid-template-columns:1fr}
+    .dl{grid-template-columns:1fr}
+    .nav .links{display:none}
+    .float-tag{display:none}
+  }
+  @media (max-width:620px){
+    .wrap{width:calc(100% - 32px)}
+    .cards{grid-template-columns:1fr}
+    .brands{padding:24px 22px}
+    .brands .row{flex-direction:column;align-items:flex-start;gap:16px}
+    .dl-main{padding:28px 22px}
+    .dl-side{padding:22px}
+    .hero .lead{font-size:15.5px}
+    .brand-pill{padding:9px 15px;font-size:13.5px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <img src="assets/icon.webp" alt="星野ROM 图标" />
+      <b>星野ROM</b>
+    </a>
+    <nav class="links">
+      <a href="#features">功能</a>
+      <a href="#brands">支持品牌</a>
+      <a href="#how">怎么用</a>
+      <a href="#download">下载</a>
+    </nav>
+    <div class="spacer"></div>
+    <a class="btn btn-primary" href="https://qfile.qq.com/q/t0WvBB9Wb6" target="_blank" rel="noopener">下载 APK</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <div class="wrap hero">
+    <div>
+      <div class="eyebrow">Android 10+ · arm64-v8a · 纯本地</div>
+      <h1>查、下、拆<br /><span>官方系统包。</span></h1>
+      <p class="lead">
+        星野ROM 是一个支持手动查询、下载 <b>OPPO / 一加 / 真我 / 小米 / 红米</b> 官方系统包的工具。
+        查任意机型任意历史版本，下载支持高速断点续传；
+        不想下整包？直接用 <b>OTA 云提取</b> 把要的那个分区镜像抽出来。
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://qfile.qq.com/q/t0WvBB9Wb6" target="_blank" rel="noopener">下载 APK</a>
+        <a class="btn btn-ghost" href="#features">看看能做什么</a>
+      </div>
+      <p class="note">免费 · 无广告 · 不收集隐私 · 当前版本 1.2.1-release</p>
+    </div>
+    <div class="phone-wrap">
+      <div class="halo"></div>
+      <div class="phone"><img src="assets/preview.png" alt="星野ROM 界面预览" /></div>
+      <div class="float-tag tag-a">断点续传 · 暂停不丢字节</div>
+      <div class="float-tag tag-b">OTA 云提取 · 不用下整包</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="kicker">Features</div>
+        <h2>该有的都有，不该有的不塞。</h2>
+        <p>没有花里胡哨的会员和任务，打开就是查包、下包、拆包三件事。</p>
+      </div>
+      <div class="cards">
+        <article class="card glass reveal">
+          <div class="ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+          </div>
+          <h3>任意机型，任意版本</h3>
+          <p>本机自动识别，也能手动选机型；目录里没有的 code，直接敲进去照样查。历史版本一版一版往下翻。</p>
+          <span class="mini">1000+ 机型目录</span>
+        </article>
+
+        <article class="card glass reveal">
+          <div class="ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg>
+          </div>
+          <h3>下载不折腾</h3>
+          <p>多线程分段下载，断点续传精确到字节——暂停再继续不会倒退。链接过期了，自己换一条新的接着下。</p>
+          <span class="mini">1–32 线程可调</span>
+        </article>
+
+        <article class="card glass reveal">
+          <div class="ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7v6c0 4.4 3.4 7.4 8 8 4.6-.6 8-3.6 8-8V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <h3>OTA 云提取</h3>
+          <p>只想要 boot、dtbo 这种单个分区？不用先把几个 G 的整包吞下来，直接从云端把那个镜像抽出来。</p>
+          <span class="mini">省流量 · 省时间</span>
+        </article>
+
+        <article class="card glass reveal">
+          <div class="ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a7 7 0 0 1 14 0"/><path d="M2 12.5a10 10 0 0 1 20 0"/><circle cx="12" cy="18" r="1.6"/></svg>
+          </div>
+          <h3>断网也能用</h3>
+          <p>常用老版本的官方直链已经预存在包里，飞行模式下选中版本点「复制链接」，照样能拿到能用的地址。</p>
+          <span class="mini">≤15 全量包</span>
+        </article>
+
+        <article class="card glass reveal">
+          <div class="ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          </div>
+          <h3>纯本地，不碰隐私</h3>
+          <p>查询、下载、校验都在你手机上完成。不收集设备信息，不上传使用记录，也没有账号体系。</p>
+          <span class="mini">无登录 · 无追踪</span>
+        </article>
+
+        <article class="card glass reveal">
+          <div class="ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z"/><path d="m4 8.5 8 4.5 8-4.5"/><path d="M12 13v7"/></svg>
+          </div>
+          <h3>液态玻璃界面</h3>
+          <p>自己画的悬浮底栏和毛玻璃卡片，扫光边缘、噪点颗粒都是手调的，不是套模板换皮。</p>
+          <span class="mini">简中 / 繁中 / English</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANDS -->
+  <section id="brands" style="padding-top:12px">
+    <div class="wrap">
+      <div class="brands glass reveal">
+        <div class="row">
+          <div class="label">支持这些品牌的官方包</div>
+          <div class="brand-list">
+            <span class="brand-pill">OPPO</span>
+            <span class="brand-pill">一加 OnePlus</span>
+            <span class="brand-pill">真我 realme</span>
+            <span class="brand-pill">小米 Xiaomi</span>
+            <span class="brand-pill">红米 Redmi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="kicker">How it works</div>
+        <h2>三步，拿到你要的包。</h2>
+        <p>主页看最新，资源页翻历史，想省事就直接云提取。</p>
+      </div>
+      <div class="steps">
+        <div class="step glass reveal">
+          <div class="n">1</div>
+          <h3>选机型</h3>
+          <p>用本机、从目录里挑，或者直接输入 model code。选好区域，不在这台手机上的机型也能查。</p>
+        </div>
+        <div class="step glass reveal">
+          <div class="n">2</div>
+          <h3>查版本</h3>
+          <p>主页看最新固件，资源页按品牌 → 系列 → 机型 → 版本往下走，全量包和售后包都能切。</p>
+        </div>
+        <div class="step glass reveal">
+          <div class="n">3</div>
+          <h3>下载或云提取</h3>
+          <p>整包丢给多线程下载器；只要某个分区，就走 OTA 云提取，直接从云上抽镜像。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section id="download">
+    <div class="wrap dl">
+      <div class="dl-main glass reveal">
+        <h2>拿走，装上，开用。</h2>
+        <p>当前是正式发布版，装完冷启动读完使用须知就能用。不需要注册，不需要付费。</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="https://qfile.qq.com/q/t0WvBB9Wb6" target="_blank" rel="noopener">下载 HoshinoROM-1.2.1-release.apk</a>
+          <a class="btn btn-ghost" href="#features">功能一览</a>
+        </div>
+      </div>
+      <div class="dl-side glass reveal">
+        <div class="meta"><span>当前版本</span><b>1.2.1-release</b></div>
+        <div class="meta"><span>系统要求</span><b>Android 10 及以上</b></div>
+        <div class="meta"><span>架构</span><b>arm64-v8a</b></div>
+        <div class="meta"><span>大小</span><b>约 65 MB</b></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="col">
+        <h4>星野ROM</h4>
+        <p>查、下、拆官方系统包。<br />一个不啰嗦的小工具。</p>
+      </div>
+      <div class="col">
+        <h4>联系</h4>
+        <a href="mailto:xingyeovo@vip.qq.com">xingyeovo@vip.qq.com</a>
+        <a href="https://qm.qq.com/q/42T6YKDTH2" target="_blank" rel="noopener">QQ 交流群</a>
+      </div>
+      <div class="col">
+        <h4>说明</h4>
+        <p>免费使用，无广告。</p>
+        <p>版本更新以应用内公告为准。</p>
+      </div>
+    </div>
+    <div class="disclaimer">
+      星野ROM 是由第三方开发的非官方工具，与 OPPO、一加、真我、小米、红米等手机厂商没有任何关联。
+      应用仅通过官方公开渠道获取系统更新数据，不修改或影响任何系统功能；所有品牌商标归各自厂商所有。
+      使用本工具所产生的任何风险与后果由用户自行承担。
+    </div>
+    <div class="copyright">© 2026 星野ROM · Hoshino ROM</div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var items = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function (el) { el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    items.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+
+</body>
+</html>
